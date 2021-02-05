@@ -1,0 +1,3 @@
+# Your custom proxy server list
+
+# - {name: "example_server", server: www.example.com, port: 80, type: ssr, cipher: aes-256-cfb, password: noway, protocol: origin, obfs: plain}
