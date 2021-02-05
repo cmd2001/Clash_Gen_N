@@ -8,7 +8,7 @@ It can IMPORT node settings from a upstream subscribe link, add your custom node
 
 ### Picture
 
-![p0](https://github.com/cmd2001/Clash_Gen_N/Pictures/p0.jpg)
+![p0](https://github.com/cmd2001/Clash_Gen_N/blob/master/Pictures/p0.jpg)
 
 ### Settings
 
