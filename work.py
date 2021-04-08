@@ -4,12 +4,12 @@ import yaml
 import ruamel.yaml
 from upstream_parser import parse_upstream
 from rule_parser import RuleParser
-from config.config import rules_list
+from config.config import rules_list, url, extra_urls
 
 def work():
     ret = {}
     # copy upstream data
-    upstream = parse_upstream()
+    upstream = parse_upstream(url)
     for key, value in upstream.items():
         if key == 'port' or key == 'socks-port' or key == 'allow-lan' or key == 'mode' or \
                 key == 'log-level' or key == 'external-controller':
@@ -17,6 +17,16 @@ def work():
 
     # generate proxy list
     proxies = list(upstream['proxies'])
+
+    for extra_url in extra_urls.split('\n'):
+        if extra_url == '':
+            continue
+        # noinspection PyBroadException
+        try:
+            proxies = proxies + list(parse_upstream(extra_url)['proxies'])
+        except:
+            pass
+
     upstream_proxy_list = []
     for proxy in proxies:
         upstream_proxy_list.append(proxy['name'])
@@ -24,8 +34,9 @@ def work():
     custom_proxies_file = open('config/custom_proxies.list', 'r')
     custom_proxies = yaml.safe_load(custom_proxies_file.read())
     custom_proxies_file.close()
-    for proxy in custom_proxies:
-        proxies.append(proxy)  # force override duplicated node
+    if custom_proxies is not None:
+        for proxy in custom_proxies:
+            proxies.append(proxy)  # force override duplicated node
     proxy_list = []
     for proxy in proxies:
         proxy_list.append(proxy['name'])

@@ -3,6 +3,10 @@
 # Your upstream clash subscribe url
 
 url = 'https://your.subscribe.url'
+extra_urls = '''
+https://your.extra.subscribe.url1
+https://your.extra.subscribe.url1
+'''
 
 # Request headers (you can keep this value for for most times)
 
@@ -16,6 +20,6 @@ headers = {
 rules_list = (('Domestic_Sites', 'domestic.list'),
               ('DNS_Polluted', 'polluted.list'),
               ('Region_Restricted', 'region.list'),
-              ('Popular_Sites', 'polular.list'),
+              ('Popular_Sites', 'popular.list'),
               ('Local_Area_Network', 'lan.list'),
               ('Custom_Sites', 'custom.list'))

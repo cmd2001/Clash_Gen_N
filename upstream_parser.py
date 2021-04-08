@@ -2,10 +2,10 @@
 
 import requests
 import yaml
-from config.config import url, headers
+from config.config import headers
 
 
-def parse_upstream():
+def parse_upstream(url):
     text = ''
     for i in range(0, 3):
         try:
@@ -13,12 +13,11 @@ def parse_upstream():
         except:
             continue
         code = res.status_code
-        print(code)
         if code == 200:
             text = res.text
             break
     if text == '':
-        raise  Exception
+        raise Exception
     dic = yaml.safe_load(text)
     ret = {}
     for key, value in dic.items():
