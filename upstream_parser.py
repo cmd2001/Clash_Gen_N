@@ -7,10 +7,10 @@ from config.config import headers
 
 def parse_upstream(url):
     text = ''
-    for i in range(0, 3):
+    for _ in range(0, 3):
         try:
-            res = requests.get(url=url, headers=headers)
-        except:
+            res = requests.get(url=url, headers=headers, verify=False)
+        except Exception as _:
             continue
         code = res.status_code
         if code == 200:

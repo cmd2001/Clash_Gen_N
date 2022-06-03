@@ -1,15 +1,16 @@
 # generate yaml text
 
+from flask import make_response
 import yaml
 import ruamel.yaml
 from upstream_parser import parse_upstream
-from rule_parser import RuleParser
-from config.config import rules_list, url, extra_urls
+from config.config import urls
 
 def work():
     ret = {}
     # copy upstream data
-    upstream = parse_upstream(url)
+    sp = urls.strip().split('\n')
+    upstream = parse_upstream(sp[0])
     for key, value in upstream.items():
         if key == 'port' or key == 'socks-port' or key == 'allow-lan' or key == 'mode' or \
                 key == 'log-level' or key == 'external-controller':
@@ -18,7 +19,8 @@ def work():
     # generate proxy list
     proxies = list(upstream['proxies'])
 
-    for extra_url in extra_urls.split('\n'):
+    for i in range(1, len(sp)):
+        extra_url = sp[i]
         if extra_url == '':
             continue
         # noinspection PyBroadException
@@ -44,30 +46,15 @@ def work():
 
     # generate proxy groups
     proxy_groups = []
-    proxy_groups.append({'name': 'Node_A', 'type': 'select', 'proxies': ['DIRECT', 'Auto_Select_All'] + proxy_list})  # Node Select A
-    proxy_groups.append({'name': 'Node_B', 'type': 'select', 'proxies': ['DIRECT', 'Auto_Select_Upstream'] + proxy_list})  # Node Select B
-    proxy_groups.append({'name': 'Auto_Select_All', 'type': 'url-test', 'url': 'http://www.gstatic.com/generate_204',
-                         'interval': 300, 'tolerance': 50, 'proxies': proxy_list})  # Auto Select from ALL nodes
-    proxy_groups.append({'name': 'Auto_Select_Upstream', 'type': 'url-test', 'url': 'http://www.gstatic.com/generate_204',
-                         'interval': 300, 'tolerance': 50, 'proxies': upstream_proxy_list})  # Auto Select from upstream nodes
-    # Build two groups to avoid Auto_Select fails to work when custom proxy contains domestic nodes.
-
-    for display_name, file_name in rules_list:  # We provide a selection from Node_A, Node_B, Auto_Select for all groups
-        proxy_groups.append({'name': display_name, 'type': 'select', 'proxies': ['Node_A', 'Node_B', 'Auto_Select_All', 'Auto_Select_Upstream']})
-
-    proxy_groups.append({'name': 'Others', 'type': 'select', 'proxies': ['Node_A', 'Node_B', 'Auto_Select_All', 'Auto_Select_Upstream']})
     ret['proxy-groups'] = proxy_groups
 
     # generate ruls
     rules = []
-    for display_name, file_name in rules_list:
-        temp_rules = RuleParser('rules/' + file_name).parse()
-        for line in temp_rules:
-            rules.append(line['method'] + ',' + line['domain'] + ',' + display_name)
-    rules.append('MATCH,Others')
     ret['rules'] = rules
 
-    return ruamel.yaml.dump(ret, Dumper=ruamel.yaml.RoundTripDumper)
+    response = make_response(ruamel.yaml.dump(ret, Dumper=ruamel.yaml.RoundTripDumper), 200)
+    response.mimetype = "text/plain"
+    return response
 
 
 
